@@ -83,7 +83,7 @@ class composer (
   }
 
   exec { 'composer-install':
-    command     => "${command_name} -O ${composer_full_path} ${target}",
+    command     => "${download_command} -O ${composer_full_path} ${target}",
     environment => [ "COMPOSER_HOME=${target_dir}" ],
     user        => $user,
     unless      => $unless,
