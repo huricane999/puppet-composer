@@ -70,13 +70,25 @@ class composer (
     default => "/usr/bin/test -f ${composer_full_path} && ${composer_full_path} -V |grep -q ${version}"
   }
 
+
+  case $::kernel {
+    'Darwin': {
+      $download_command = '/usr/bin/curl --insecure'
+      $download_require = undef
+    }
+    default: {
+      $download_command = '/usr/bin/wget --no-check-certificate'
+      $download_require = Package['wget']
+    }
+  }
+
   exec { 'composer-install':
-    command     => "/usr/bin/wget --no-check-certificate -O ${composer_full_path} ${target}",
+    command     => "${command_name} -O ${composer_full_path} ${target}",
     environment => [ "COMPOSER_HOME=${target_dir}" ],
     user        => $user,
     unless      => $unless,
     timeout     => $download_timeout,
-    require     => Package['wget'],
+    require     => $download_require,
   }
 
   file { "${target_dir}/${command_name}":
