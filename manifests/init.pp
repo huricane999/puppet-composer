@@ -52,8 +52,21 @@ class composer (
   validate_string($group)
   validate_bool($build_deps)
 
-  if $build_deps and $::kernel != 'Darwin' {
-    ensure_packages(['wget'])
+  case $::kernel {
+    'Darwin': {
+      $download_command = '/usr/bin/curl --insecure'
+      $download_require = undef
+      $test_exec = '/bin/test'
+    }
+    default: {
+      $download_command = '/usr/bin/wget --no-check-certificate'
+      $download_require = Package['wget']
+      $test_exec = '/usr/bin/test'
+      
+      if $build_deps {
+        ensure_packages(['wget'])
+      }
+    }
   }
 
   include composer::params
@@ -66,20 +79,8 @@ class composer (
   $composer_full_path = "${target_dir}/${command_name}"
 
   $unless = $version ? {
-    undef   => "/usr/bin/test -f ${composer_full_path}",
-    default => "/usr/bin/test -f ${composer_full_path} && ${composer_full_path} -V |grep -q ${version}"
-  }
-
-
-  case $::kernel {
-    'Darwin': {
-      $download_command = '/usr/bin/curl --insecure'
-      $download_require = undef
-    }
-    default: {
-      $download_command = '/usr/bin/wget --no-check-certificate'
-      $download_require = Package['wget']
-    }
+    undef   => "${test_exec} -f ${composer_full_path}",
+    default => "${test_exec} -f ${composer_full_path} && ${composer_full_path} -V |grep -q ${version}"
   }
 
   exec { 'composer-install':
