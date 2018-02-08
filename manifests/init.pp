@@ -52,7 +52,7 @@ class composer (
   validate_string($group)
   validate_bool($build_deps)
 
-  if $build_deps {
+  if $build_deps and $::kernel != 'Darwin' {
     ensure_packages(['wget'])
   }
 
