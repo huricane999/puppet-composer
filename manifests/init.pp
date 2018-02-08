@@ -60,11 +60,6 @@ class composer (
   }
 
   $composer_full_path = "${target_dir}/${command_name}"
-
-  $unless = $version ? {
-    undef   => "${test_exec} -f ${composer_full_path}",
-    default => "${test_exec} -f ${composer_full_path} && ${composer_full_path} -V |grep -q ${version}"
-  }
   
   case $::kernel {
     'Darwin': {
@@ -81,6 +76,11 @@ class composer (
         ensure_packages(['wget'])
       }
     }
+  }
+  
+  $unless = $version ? {
+    undef   => "${test_exec} -f ${composer_full_path}",
+    default => "${test_exec} -f ${composer_full_path} && ${composer_full_path} -V |grep -q ${version}"
   }
 
   exec { 'composer-install':
