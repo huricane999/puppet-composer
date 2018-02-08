@@ -63,12 +63,12 @@ class composer (
   
   case $::kernel {
     'Darwin': {
-      $download_command = '/usr/bin/curl --insecure -o ${composer_full_path} ${target}'
+      $download_command = "/usr/bin/curl --insecure -o ${composer_full_path} ${target}"
       $download_require = undef
       $test_exec = '/bin/test'
     }
     default: {
-      $download_command = '/usr/bin/wget --no-check-certificate -O ${composer_full_path} ${target}'
+      $download_command = "/usr/bin/wget --no-check-certificate -O ${composer_full_path} ${target}"
       $download_require = Package['wget']
       $test_exec = '/usr/bin/test'
       
